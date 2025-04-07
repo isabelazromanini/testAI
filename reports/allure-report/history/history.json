@@ -1,0 +1,1 @@
+{"f7ac102bbb6279eeeefe88f91dcebd43":{"statistic":{"failed":0,"broken":1,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"97e17de5577f5c8c","status":"broken","statusDetails":"NameError: name 'WebDriverWait' is not defined","time":{"start":1741010551571,"stop":1741010559884,"duration":8313}}]}}
