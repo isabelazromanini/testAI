@@ -1,0 +1,51 @@
+🔧 Correção de Teste
+Data: 20250425_133735
+
+📂 Código Original:
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então deve retornar o erro     ${MSG_ERRO_USERNAME_INVALIDO}
+
+⚠️ Erro:
+Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid!
+×'.
+
+✅ Código Corrigido:
+**1. Código Corrigido:**
+
+```robot
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então a mensagem de erro deve ser  Your username is invalid!
+```
+
+**2. Explicação da Correção:**
+
+O erro original "Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid! ×'." indica que a keyword `Então deve retornar o erro  ${MSG_ERRO_USERNAME_INVALIDO}`  estava procurando a string literal "teste" (provavelmente um valor placeholder incorreto para `${MSG_ERRO_USERNAME_INVALIDO}`) dentro do elemento com `id=flash`, mas encontrou a mensagem real de erro "Your username is invalid! ×".
+
+A correção implementada substitui a keyword problemática e seu argumento por `Então a mensagem de erro deve ser  Your username is invalid!`.  Essa abordagem verifica diretamente se a mensagem de erro esperada ("Your username is invalid!") está presente na página, provavelmente utilizando uma keyword customizada que lida com a localização e extração da mensagem de erro (e.g., buscando o texto dentro do elemento com `id=flash`).  A correção remove a dependência da variável  `${MSG_ERRO_USERNAME_INVALIDO}` que provavelmente estava configurada incorretamente.
+
+**Justificativa para a solução:**
+
+* **Precisão:** A solução verifica a mensagem de erro específica esperada, garantindo que o teste falhe se a mensagem for diferente (por exemplo, devido a uma mudança no sistema).
+* **Robustez:** Ao invés de comparar com um valor fixo em uma variável, a nova keyword provavelmente utiliza um  mecanismo mais robusto para localizar a mensagem de erro na página, tornando o teste menos suscetível a quebras devido a pequenas mudanças no layout.
+* **Clareza:** A nova keyword torna o teste mais legível e compreensível, expressando claramente a intenção do teste.
+* **Manutenibilidade:**  Elimina a necessidade de gerenciar a variável  `${MSG_ERRO_USERNAME_INVALIDO}`, simplificando a manutenção do teste.
+
+**Keyword Customizada (Exemplo):**
+
+Embora não fornecido no problema original, um exemplo de como a keyword `Então a mensagem de erro deve ser` poderia ser implementada é:
+
+```robot
+Então a mensagem de erro deve ser    ${expected_message}
+    ${error_message}=    Get Text    id=flash
+    Should Contain    ${error_message}    ${expected_message}    ignore_case=True  # opcional: ignorar maiúsculas e minúsculas
+```
+
+Esta keyword customizada obtém o texto do elemento com `id=flash` e verifica se ele contém a mensagem esperada. O parâmetro `ignore_case=True` torna a verificação mais robusta, ignorando diferenças entre maiúsculas e minúsculas. Adapte a localização do elemento conforme necessário para o seu contexto.

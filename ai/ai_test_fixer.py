@@ -14,7 +14,7 @@ def log_correction(test_code, error_message, fixed_code):
     ensure_log_dir()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_filename = os.path.join(LOG_DIR, f"correction_{timestamp}.log")
-    with open(log_filename, "w") as log_file:
+    with open(log_filename, "w", encoding="utf-8") as log_file:
         log_file.write("🔧 Correção de Teste\n")
         log_file.write(f"Data: {timestamp}\n\n")
         log_file.write("📂 Código Original:\n")
@@ -25,23 +25,20 @@ def log_correction(test_code, error_message, fixed_code):
         log_file.write(fixed_code + "\n")
 
 def fix_broken_test(test_code, error_message):
-    # Captura a chave da API
+    """Corrige testes do Robot Framework usando IA."""
     api_key = os.getenv("GEMINI_API_KEY")
-    
     if not api_key:
         raise ValueError("🚨 GEMINI_API_KEY não está definida. Configure a variável de ambiente ou passe a chave diretamente.")
-    
-    # Configuração do modelo
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-pro-latest")  # Use a versão mais recente
 
-    # Formatar a mensagem para fornecer um contexto melhor à IA
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-pro-latest")
+
     prompt = f"""
-    Você é um especialista em testes automatizados e correção de código Python com Selenium e Pytest.
-    O seguinte teste apresentou um erro. Corrija o código e explique a solução de forma clara:
+    Você é um especialista em testes automatizados escritos em Robot Framework.
+    O seguinte teste apresentou um erro. Corrija o código de teste e explique a solução de forma clara.
 
     **Código do Teste:**
-    ```python
+    ```robot
     {test_code}
     ```
 
@@ -51,19 +48,31 @@ def fix_broken_test(test_code, error_message):
     ```
 
     **Regras:**
-    - Se for um problema de elemento não interagível, adicione `WebDriverWait` com `EC.visibility_of_element_located`.
-    - Se for um erro de asserção, corrija o valor esperado.
-    - Explique cada correção de forma objetiva.
+    - Use estrutura do Robot Framework (Gherkin-style se aplicável).
+    - Mantenha as boas práticas de indentação.
+    - Corrija as palavras-chave incorretas ou parâmetros inválidos.
+    - Retorne a versão corrigida.
 
     **Saída esperada:**
     1. Código corrigido.
-    2. Explicação detalhada das correções.
+    2. Explicação da correção.
     """
-
-    # Gerar a resposta da IA
     response = model.generate_content(prompt)
-    fixed_code = response.text
+    response_text = response.text.strip()
 
-    # Registrar correção
-    log_correction(test_code, error_message, fixed_code)
-    return fixed_code
+    # Tenta separar "Código Corrigido" e "Explicação"
+    if "Explicação:" in response_text:
+        parts = response_text.split("Explicação:", 1)
+        codigo_corrigido = parts[0].strip()
+        explicacao = parts[1].strip()
+    else:
+        codigo_corrigido = response_text
+        explicacao = ""
+
+    log_correction(test_code, error_message, codigo_corrigido)
+
+    # Agora retorna DICIONÁRIO com os campos SEPARADOS
+    return {
+        "code": codigo_corrigido,
+        "explanation": explicacao
+    }

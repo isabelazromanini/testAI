@@ -1,0 +1,73 @@
+🔧 Correção de Teste
+Data: 20250425_134121
+
+📂 Código Original:
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então deve retornar o erro     ${MSG_ERRO_USERNAME_INVALIDO}
+
+⚠️ Erro:
+Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid!
+×'.
+
+✅ Código Corrigido:
+1. **Código Corrigido:**
+
+```robot
+*** Settings ***
+Library    SeleniumLibrary
+
+*** Variables ***
+${USERNAME_INVALIDO}    usuario_invalido
+${SENHA_VALIDA}        senha123
+${MSG_ERRO_USERNAME_INVALIDO}    Your username is invalid!
+
+*** Test Cases ***
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então deve retornar o erro     ${MSG_ERRO_USERNAME_INVALIDO}
+
+*** Keywords ***
+Dado que estou na página de login
+    Open Browser    http://seusite.com.br/login    chrome  # Substitua pela URL real
+    Maximize Browser Window
+
+Quando eu insiro o username    ${username}
+    Input Text    id=username    ${username} # Substitua 'id=username' pelo locator correto
+
+E eu insiro a senha    ${senha}
+    Input Text    id=password    ${senha} # Substitua 'id=password' pelo locator correto
+
+E clico no botão de login
+    Click Button    id=submit    # Substitua 'id=submit' pelo locator correto
+
+Então deve retornar o erro    ${mensagem_erro}
+    Element Text Should Be    id=flash    ${mensagem_erro}    # Substitua 'id=flash' pelo locator correto da mensagem de erro.
+```
+
+2. **Explicação da Correção:**
+
+O erro `Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid! ×'.` indica que a mensagem de erro esperada ("teste") não correspondeu à mensagem exibida na página ("Your username is invalid! ×").
+
+A correção principal foi ajustar a variável `${MSG_ERRO_USERNAME_INVALIDO}` para o valor correto da mensagem de erro, que é "Your username is invalid!".  Observe que o "×"  que aparece no final da mensagem  pode ser um elemento separado e não parte da mensagem de erro textual.  Se a mensagem de erro na tela sempre inclui o "×", você *poderia* adicioná-lo à variável `${MSG_ERRO_USERNAME_INVALIDO}`, mas a melhor prática seria isolar apenas a mensagem textual.
+
+**Outras melhorias e considerações importantes:**
+
+* **Locators:** O código original não fornecia os locators (seletores) dos elementos da página.  A versão corrigida inclui placeholders como `id=username`, `id=password`, `id=submit` e `id=flash`.  **Você precisa substituí-los pelos locators corretos da sua aplicação.**  Use IDs, names, XPaths ou CSS Selectors conforme apropriado para garantir a robustez dos seus testes. Inspecione o código HTML da sua página de login para encontrar os locators mais adequados.
+
+* **URL da Aplicação:** A keyword `Open Browser` agora inclui um placeholder `http://seusite.com.br/login`. **Substitua esse placeholder pela URL correta da sua aplicação.**
+
+* **Boas Práticas:** O código foi organizado com seções `*** Settings ***`, `*** Variables ***`, `*** Test Cases ***`, e `*** Keywords ***` para melhor estruturação.  As keywords foram definidas para encapsular as ações do teste, tornando-o mais legível e modular.
+
+* **Mensagem de Erro:**  A keyword `Element Text Should Be` é mais precisa para verificar a mensagem de erro. `Should Contain` pode levar a falsos positivos se a mensagem esperada for uma substring de uma mensagem maior e não exatamente a mensagem completa.
+
+* **Selenium Library:** Adicionei a linha `Library    SeleniumLibrary` na seção `*** Settings ***` assumindo que você está usando essa biblioteca para interagir com o navegador.
+
+
+Ao aplicar essas correções e substituir os placeholders pelos valores reais do seu sistema, o teste deve passar com sucesso.  Lembre-se de que a chave para testes robustos é usar locators confiáveis e manter o código de teste claro e bem organizado.

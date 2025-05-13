@@ -1,0 +1,69 @@
+🔧 Correção de Teste
+Data: 20250425_131538
+
+📂 Código Original:
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então deve retornar o erro     ${MSG_ERRO_USERNAME_INVALIDO}
+
+⚠️ Erro:
+Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid!
+×'.
+
+✅ Código Corrigido:
+```robot
+*** Settings ***
+Library    SeleniumLibrary
+
+*** Variables ***
+${USERNAME_INVALIDO}    usuario_invalido
+${SENHA_VALIDA}        senha123
+${MSG_ERRO_USERNAME_INVALIDO}    Your username is invalid!
+
+*** Test Cases ***
+Login Username Inválido
+    Dado que estou na página de login
+    Quando eu insiro o username    ${USERNAME_INVALIDO}
+    E eu insiro a senha            ${SENHA_VALIDA}
+    E clico no botão de login
+    Então deve retornar o erro     ${MSG_ERRO_USERNAME_INVALIDO}
+
+
+*** Keywords ***
+Dado que estou na página de login
+    Open Browser    http://seu_site_de_login/    chrome  # Substitua pela URL correta
+    Maximize Browser Window
+
+Quando eu insiro o username    ${username}
+    Input Text    id=username    ${username} # Substitua 'id=username' pelo locator correto do campo de username
+
+E eu insiro a senha    ${senha}
+    Input Text    id=password    ${senha} # Substitua 'id=password' pelo locator correto do campo de senha
+
+E clico no botão de login
+    Click Button    id=submit    # Substitua 'id=submit' pelo locator correto do botão de login
+
+Então deve retornar o erro    ${mensagem_de_erro}
+    Element Should Contain    id=flash    ${mensagem_de_erro} # Substitua 'id=flash' pelo locator correto da mensagem de erro.
+    Wait Until Element Is Not Visible    id=flash    timeout=10s # Opcional: Aguarde o desaparecimento da mensagem para evitar problemas em testes subsequentes.
+```
+
+**Explicação da Correção:**
+
+O erro original "Element 'id=flash' should have contained text 'teste' but its text was 'Your username is invalid! ×'." indica que a mensagem de erro esperada ("teste") não correspondia à mensagem exibida na página ("Your username is invalid! ×").
+
+1. **Mensagem de erro esperada:**  A variável `${MSG_ERRO_USERNAME_INVALIDO}` foi corrigida para conter a mensagem real exibida pela aplicação: "Your username is invalid!".  O "×" presente no erro original provavelmente é um ícone de fechar a notificação e não faz parte da mensagem principal, portanto, foi removido.
+
+2. **Localizadores (Locators):**  O código original não fornecia os localizadores corretos dos elementos na página (username, senha, botão de login e mensagem de erro).  A solução substituiu  os localizadores genéricos (e.g., `id=username`) por  placeholders como `id=username`, `id=password`, `id=submit`, `id=flash`.  **Você precisa substituir esses placeholders pelos localizadores *reais* da sua aplicação.**  A melhor prática é utilizar localizadores robustos e menos propensos a quebras, como IDs estáveis. Se IDs não estiverem disponíveis, considere usar outros localizadores como nomes, XPaths ou seletores CSS.
+
+3. **Keyword `Element Should Contain`:** Essa keyword é mais adequada para verificar se um elemento *contém* um determinado texto, ao invés de verificar uma correspondência exata.  Isso torna o teste mais resistente a pequenas variações na mensagem de erro (por exemplo, espaços extras).
+
+4. **`Wait Until Element Is Not Visible` (Opcional):** Esta keyword foi adicionada como uma boa prática. Mensagens de erro, muitas vezes, desaparecem após um curto período. A inclusão desta keyword garante que o teste aguarde o desaparecimento da mensagem, evitando potenciais problemas em testes subsequentes que podem ser afetados pela persistência da mensagem na tela.  Ajuste o `timeout` conforme necessário.
+
+5. **URL e Browser:**  A keyword `Open Browser` agora inclui a URL  `http://seu_site_de_login/` (**substitua pela URL correta**) e o navegador `chrome`.  Adapte para o seu ambiente.
+
+
+Em resumo, a correção principal foi ajustar a mensagem de erro esperada para o valor correto e adicionar placeholders para que você inclua os locators corretos da sua aplicação.  A implementação de  boas práticas como o uso de `Wait Until Element Is Not Visible` também contribui para a robustez do teste. Certifique-se de substituir os placeholders pelos localizadores corretos para que o teste funcione no seu ambiente.

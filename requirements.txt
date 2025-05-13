@@ -1,8 +1,7 @@
+robotframework==6.1.1
+robotframework-seleniumlibrary==6.1.2
 selenium==4.10.0
-pytest==7.4.0
-pytest-bdd==6.1.1
 webdriver-manager==4.0.0
-google-generativeai==0.1.0
-allure-pytest==2.13.0
-streamlit==1.13.0
+google-generativeai>=1.0.0
+streamlit>=1.13.0    
 altair==4.2.0
